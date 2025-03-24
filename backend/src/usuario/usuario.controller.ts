@@ -10,10 +10,11 @@ import {
 } from "@nestjs/common";
 import {UsuarioService} from "./usuario.service";
 import {Usuarios} from "./usuario.entity";
+import {AuthService} from "../auth/auth.service";
 
 @Controller('usuarios')
 export class UsuarioController{
-    constructor(private readonly usuarioService: UsuarioService) {}
+    constructor(private readonly usuarioService: UsuarioService, private readonly authService: AuthService) {}
 
     @Post('register')
     @HttpCode(HttpStatus.CREATED) // retorna 201
@@ -28,19 +29,24 @@ export class UsuarioController{
         }
 
     }
-
     @Post('login')
     @HttpCode(HttpStatus.OK) // retorna 200
-    async login(@Body() body: {email: string}): Promise<Usuarios | null> {
-        try{
+    async login(@Body() body: { email: string; senha: string }) {
+        try {
             const usuario = await this.usuarioService.LoginUsuario(body.email);
-            if(!usuario){
-                throw new BadRequestException('Usuario não encontrado'); // retorna 400
+            if (!usuario) {
+                throw new BadRequestException('Usuário não encontrado'); // retorna 400
             }
-            return usuario;
-        } catch (error){
-            throw new InternalServerErrorException("Erro interno no servidor ao processar login!"); //retorna 500
-        }
 
+            // Verifica a senha
+            const token = await this.authService.ValidarUsuario(body.email, body.senha)
+            if (!token) {
+                throw new BadRequestException('Credenciais inválidas'); // retorna 400
+            }
+
+            return { access_token: token };
+        } catch (error) {
+            throw new InternalServerErrorException("Erro interno no servidor ao processar login!"); // retorna 500
+        }
     }
 }
