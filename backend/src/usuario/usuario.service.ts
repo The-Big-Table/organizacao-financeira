@@ -19,4 +19,8 @@ export class UsuarioService {
     async LoginUsuario(email: string): Promise<Usuarios | null>{
         return await this.usuarioRepository.findOne({where: {email}});
     }
+
+    async BuscandoUserID (id: number): Promise<Usuarios | null>{
+        return await this.usuarioRepository.findOne({where: {id}})
+    }
 }

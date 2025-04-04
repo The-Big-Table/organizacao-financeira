@@ -6,7 +6,7 @@ import {
     HttpStatus,
     BadGatewayException,
     InternalServerErrorException,
-    BadRequestException
+    BadRequestException, Param, ParseIntPipe
 } from "@nestjs/common";
 import {UsuarioService} from "./usuario.service";
 import {Usuarios} from "./usuario.entity";
@@ -48,5 +48,11 @@ export class UsuarioController{
         } catch (error) {
             throw new InternalServerErrorException("Erro interno no servidor ao processar login!"); // retorna 500
         }
+    }
+
+    @Get(':id')
+    @HttpCode(HttpStatus.OK)
+    async id(@Param('id', ParseIntPipe) id: number ): Promise<Usuarios | null>{
+        
     }
 }
